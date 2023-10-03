@@ -18,17 +18,16 @@ import jakarta.servlet.http.HttpServletResponse;
 public class registerServlet extends HttpServlet {
 	private Connection conn;
 	private PreparedStatement ps;
-	int result;
-
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		ServletContext context = config.getServletContext();
-	    String dbe2101089 = context.getInitParameter("db_user");
-	    String db32eEMMmQZbA = context.getInitParameter("db_password");
+	    String dbUser = context.getInitParameter("db_user");
+	    String dbPassword = context.getInitParameter("db_password");
 	try {
 			Class.forName("org.mariadb.jdbc.Driver");
-			conn = DriverManager.getConnection("jdbc:mariadb://mariadb.vamk.fi/e2101089_java_demo","e2101089","32eEMMmQZbA");
+			conn = DriverManager.getConnection("jdbc:mariadb://mariadb.vamk.fi/e2101089_java_demo","e2101089","h8uV4GzDUmb");
 			ps = conn.prepareStatement("INSERT INTO user (email, password) VALUES(?, ?)");
 		} catch(SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -42,7 +41,7 @@ public class registerServlet extends HttpServlet {
 		try {
 			ps.setString(1, email);
 			ps.setString(2, password);
-			ResultSet rs = ps.executeQuery();
+			int result = ps.executeUpdate();
 			RequestDispatcher reqDis;
 	if (result > 0) {
 		//login success
