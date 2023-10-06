@@ -1,4 +1,3 @@
 loginServlet.class
-registerServlet.class
 homeServlet.class
-registerServlet$MyRegexUtils.class
+registerServlet.class

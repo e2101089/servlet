@@ -80,20 +80,14 @@ public class registerServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 }
-	    		private boolean isValidEmail(String email) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-				public class MyRegexUtils{
-	    			public static boolean isValidEmail(String email) {
+					private boolean isValidEmail(String email) {
 	    			String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";       		
 	    			Pattern pattern = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
 	    			System.out.println(email);
 	    			Matcher matcher = pattern.matcher(email);
-	    	
 	    			return matcher.matches();
 	        }
-	    		}
+	    		
 	@Override
 	public void destroy() {
 		try {
