@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <input type="text" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+  <p>Don't have an account? <a href="register.html">Register now</a></p>
+  <p id="loginMessage" style="color: red;"></p>
+
+  <script>
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const messageElement = document.getElementById('loginMessage');
+
+      try {
+        console.log('=== Login Attempt ===');
+        console.log('Email:', email);
+        
+        const response = await fetch('http://localhost:5000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        
+        let data;
+        try {
+          data = JSON.parse(responseText);
+          console.log('Parsed response:', data);
+        } catch (parseError) {
+          console.error('Failed to parse response:', parseError);
+          throw new Error('Invalid server response');
+        }
+
+        if (data.success && data.user) {
+          console.log('Login successful, user data:', data.user);
+          
+          // Store user data in the format expected by the dashboard
+          const userData = {
+            id: data.user.id,
+            email: data.user.email,
+            role: data.user.role || 'user',
+            timestamp: Date.now() // Add timestamp to prevent stale data
+          };
+          
+          console.log('Storing user data:', userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          
+          // Verify storage
+          const stored = localStorage.getItem('user');
+          console.log('Stored data:', stored);
+          
+          if (stored) {
+            console.log('Redirecting to dashboard...');
+            window.location.href = 'dashboard.html';
+          } else {
+            throw new Error('Failed to store user data');
+          }
+        } else {
+          throw new Error(data.message || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        messageElement.textContent = error.message || 'An error occurred. Please try again.';
+      }
+    });
+
+    // Check if user is already logged in
+    function checkExistingLogin() {
+      console.log('Checking existing login...');
+      const userData = localStorage.getItem('user');
+      console.log('User data from localStorage:', userData);
+
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          console.log('Parsed user data:', user);
+          
+          // Check if the data is stale (older than 24 hours)
+          const isStale = !user.timestamp || (Date.now() - user.timestamp) > (24 * 60 * 60 * 1000);
+          
+          if (user && user.id && !isStale) {
+            console.log('Valid user data found, redirecting to dashboard');
+            window.location.href = 'dashboard.html';
+          } else {
+            console.log('Invalid or stale user data, clearing localStorage');
+            localStorage.removeItem('user');
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          localStorage.removeItem('user');
+        }
+      } else {
+        console.log('No user data found, staying on login page');
+      }
+    }
+
+    // Check for existing login when page loads
+    document.addEventListener('DOMContentLoaded', checkExistingLogin);
+  </script>
+</body>
+</html>
