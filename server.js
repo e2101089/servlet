@@ -5,15 +5,7 @@ const db = require('./db');
 const bodyParser = require('body-parser');
 
 // CORS configuration
-const corsOptions = {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
-};
-
-// Apply CORS middleware
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Parse JSON bodies
 app.use(bodyParser.json());

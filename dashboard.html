@@ -7,161 +7,42 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="dashboard-container">
-    <header>
-      <h1>Dashboard</h1>
-      <button onclick="logout()">Logout</button>
-    </header>
-    
-    <div class="user-info">
-      <h2>Welcome, <span id="userEmail"></span></h2>
-    </div>
+  <h1>Welcome to Dashboard</h1>
+  
+  <nav>
+    <a href="courses.html">Manage Courses</a>
+    <a href="chat.html">Chat</a>
+    <button onclick="logout()">Logout</button>
+  </nav>
 
-    <div class="dashboard-content">
-      <section class="courses-section">
-        <h2>Your Courses</h2>
-        <div id="courseList" class="course-list"></div>
-      </section>
+  <section id="notifications">
+    <h2>Notifications</h2>
+    <ul id="notificationList"></ul>
+  </section>
 
-      <section class="notifications-section">
-        <h2>Notifications</h2>
-        <div id="notificationList" class="notification-list"></div>
-      </section>
-    </div>
-  </div>
 
   <script>
-    // Check authentication and initialize dashboard
-    function checkAuth() {
-      console.log('Checking authentication...');
-      const userData = localStorage.getItem('user');
-      console.log('User data from localStorage:', userData);
+    // Lấy thông tin user từ localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    const notificationList = document.getElementById('notificationList');
 
-      if (!userData) {
-        console.log('No user data found, redirecting to login');
-        redirectToLogin();
-        return;
-      }
-
-      try {
-        const user = JSON.parse(userData);
-        console.log('Parsed user data:', user);
-        
-        if (!user || !user.id) {
-          console.log('Invalid user data, redirecting to login');
-          redirectToLogin();
-          return;
-        }
-
-        // Initialize dashboard with user data
-        initializeDashboard(user);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        redirectToLogin();
-      }
-    }
-
-    function redirectToLogin() {
-      console.log('Redirecting to login...');
-      localStorage.removeItem('user');
+    // Redirect về login nếu chưa login
+    if (!user || !user.id) {
       window.location.href = 'index.html';
-    }
+    } else {
+  fetchCourses();
+  fetchNotifications();
+}
 
+  
+
+    // Đăng xuất
     function logout() {
-      console.log('Logging out...');
       localStorage.removeItem('user');
       window.location.href = 'index.html';
     }
 
-    async function initializeDashboard(user) {
-      console.log('Initializing dashboard for user:', user);
-      
-      // Display user email
-      const userEmailElement = document.getElementById('userEmail');
-      if (userEmailElement) {
-        userEmailElement.textContent = user.email;
-      }
-
-      // Fetch and display courses
-      await fetchCourses(user.id);
-      
-      // Fetch and display notifications
-      await fetchNotifications(user.id);
-    }
-
-    async function fetchCourses(userId) {
-      console.log('Fetching courses for user:', userId);
-      const courseListDiv = document.getElementById('courseList');
-      
-      if (!courseListDiv) {
-        console.error('Course list element not found');
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:5000/api/courses?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const courses = await response.json();
-        console.log('Fetched courses:', courses);
-
-        if (courses.length === 0) {
-          courseListDiv.innerHTML = '<p>No courses found.</p>';
-          return;
-        }
-
-        courseListDiv.innerHTML = courses.map(course => `
-          <div class="course-card">
-            <h3>${course.name}</h3>
-            <p>${course.description}</p>
-            <p>Status: ${course.status}</p>
-          </div>
-        `).join('');
-      } catch (error) {
-        console.error('Error fetching courses:', error);
-        courseListDiv.innerHTML = '<p>Error loading courses. Please try again later.</p>';
-      }
-    }
-
-    async function fetchNotifications(userId) {
-      console.log('Fetching notifications for user:', userId);
-      const notificationListDiv = document.getElementById('notificationList');
-      
-      if (!notificationListDiv) {
-        console.error('Notification list element not found');
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:5000/api/notifications?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const notifications = await response.json();
-        console.log('Fetched notifications:', notifications);
-
-        if (notifications.length === 0) {
-          notificationListDiv.innerHTML = '<p>No notifications.</p>';
-          return;
-        }
-
-        notificationListDiv.innerHTML = notifications.map(notification => `
-          <div class="notification-card">
-            <p>${notification.message}</p>
-            <small>${new Date(notification.created_at).toLocaleString()}</small>
-          </div>
-        `).join('');
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-        notificationListDiv.innerHTML = '<p>Error loading notifications. Please try again later.</p>';
-      }
-    }
-
-    // Initialize dashboard when page loads
-    document.addEventListener('DOMContentLoaded', checkAuth);
+   
   </script>
 </body>
 </html>

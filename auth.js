@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('./db');
 
 // Register route
+// Register route
 router.post('/register', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -22,16 +23,16 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // Insert new user with plain text password
+        // Insert new user with plain text password (No hashing, just storing plain text)
         const [result] = await pool.query(
-            'INSERT INTO users (email, password, role) VALUES (?, ?, "teacher")',
-            [email, password]
+            'INSERT INTO users (email, password, role) VALUES (?, ?, "teacher")', // role mặc định là "teacher"
+            [email, password]  // Mã hóa mật khẩu nếu cần, nhưng không làm trong ví dụ này
         );
 
         return res.status(201).json({ 
             success: true,
             message: 'User registered successfully',
-            userId: result.insertId
+            userId: result.insertId // Lấy ID của người dùng vừa được tạo
         });
     } catch (err) {
         console.error('Registration error:', err);
@@ -42,6 +43,7 @@ router.post('/register', async (req, res) => {
         });
     }
 });
+
 
 // Login route
 router.post('/login', async (req, res) => {
